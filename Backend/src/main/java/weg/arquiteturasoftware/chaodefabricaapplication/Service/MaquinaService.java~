@@ -1,0 +1,69 @@
+package weg.arquiteturasoftware.chaodefabricaapplication.Service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import weg.arquiteturasoftware.chaodefabricaapplication.DTO.RequestMaquinaDTO;
+import weg.arquiteturasoftware.chaodefabricaapplication.DTO.ResponseMaquinaDTO;
+import weg.arquiteturasoftware.chaodefabricaapplication.Entity.Maquina;
+import weg.arquiteturasoftware.chaodefabricaapplication.Repository.MaquinaRepository;
+
+import java.util.List;
+
+@Service
+public class MaquinaService {
+
+    @Autowired
+    private MaquinaRepository maquinaRepository;
+
+    public Maquina DTOtoEntity(ResponseMaquinaDTO dto) {
+        return new Maquina(
+                dto.nome()
+        );
+    }
+
+    public RequestMaquinaDTO EntityToDTO(Maquina maquina) {
+        return new RequestMaquinaDTO(
+                maquina.getId(),
+                maquina.getNome(),
+                maquina.isOperando(),
+                maquina.getStatus()
+        );
+    }
+
+    public Maquina addMaquina(Maquina maquina) {
+        return maquinaRepository.save(maquina);
+    }
+
+    public List<Maquina> getMaquinas() {
+        return maquinaRepository.findAll();
+    }
+
+    public Maquina getMaquinaById(int id) {
+        return maquinaRepository.findById(id).orElse(null);
+    }
+
+    public String deleteMaquina(int id) {
+        maquinaRepository.deleteById(id);
+        return "Maquina removida com sucesso!";
+    }
+
+    public Maquina updateMaquina(Maquina maquina, int id) {
+        Maquina maquinaToUpdate = getMaquinaById(id);
+
+        maquinaToUpdate.setNome(maquina.getNome());
+        return maquinaRepository.save(maquinaToUpdate);
+    }
+
+    public String alterarStatusOperando(int id) {
+        Maquina maquina = getMaquinaById(id);
+        if (maquina.isOperando()) {
+            maquina.setOperando(false);
+            maquinaRepository.save(maquina);
+            return "Maquina " + id + " desligada";
+        } else {
+            maquina.setOperando(true);
+            maquinaRepository.save(maquina);
+            return "Maquina " + id + " ligada";
+        }
+    }
+}
